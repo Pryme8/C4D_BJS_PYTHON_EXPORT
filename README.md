@@ -3,7 +3,7 @@ Getting the basic export capabilities enabled to use C4D as a editor for BJS.
 ### DONE ---
 - Scene_Control
 - Camera_Tag
-- Light_Tag
+- Light_Tag (Need to fix input to Color input)
 - Primitives (Sphere, Plane, Torus, Box)
 - Expose_Variable_Tag
 ---
