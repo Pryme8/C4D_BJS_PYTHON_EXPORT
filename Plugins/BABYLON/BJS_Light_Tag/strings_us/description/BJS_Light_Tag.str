@@ -1,0 +1,6 @@
+STRINGTABLE BJS_Light_Tag
+{
+    BJS_Light_Tag "BABYLON JS Light Tag";
+    
+    BJS_LIGHT_SPECULAR "Specular Color";
+}

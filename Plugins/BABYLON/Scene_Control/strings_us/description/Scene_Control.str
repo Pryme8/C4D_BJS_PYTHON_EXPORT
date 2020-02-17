@@ -1,0 +1,11 @@
+STRINGTABLE Scene_Control
+{
+    Scene_Control       "BABYLON JS Scene Controller";
+    
+    BJS_SCENE_CLEARCOLOR    "Scene Clear Color";
+    BJS_SCENE_CLEARALPHA    "Clear Alpha";
+    BJS_SCENE_AMBIENTCOLOR  "Scene Ambient Color";
+    BJS_SCENE_MAX_LIGHTS    "Max Lights";
+    
+    BJS_EXPORT_SCENE_TEMPLATE "Export Scene Template";
+}

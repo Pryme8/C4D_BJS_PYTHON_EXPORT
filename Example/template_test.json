@@ -1,0 +1,411 @@
+{
+    "attributes": {
+        "BJS_SCENE_AMBIENTCOLOR": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "BJS_SCENE_CLEARALPHA": 1.0,
+        "BJS_SCENE_CLEARCOLOR": {
+            "x": 0.48,
+            "y": 0.48,
+            "z": 0.6
+        },
+        "BJS_SCENE_MAX_LIGHTS": 8
+    },
+    "nodes": [
+        {
+            "attributes": {
+                "BJS_CAMERA_ANGULAR_SENSIBILITY": 800.0,
+                "BJS_CAMERA_ATTACH_CONTROLS": 1,
+                "BJS_CAMERA_MAKE_DEFAULT": 0,
+                "BJS_CAMERA_SPEED": 100.0,
+                "BJS_CAMERA_Z_CLIP": {
+                    "x": 1.0,
+                    "y": 10000.0
+                },
+                "CAMERA_TARGET": {
+                    "x": -1172.2085542129735,
+                    "y": -1241.3972020041676,
+                    "z": 1649.690840003032
+                }
+            },
+            "children": [],
+            "name": "MainCamera",
+            "subType": "none",
+            "transforms": {
+                "position": {
+                    "x": 698.8211023894845,
+                    "y": 692.2712356081004,
+                    "z": -1310.0683389668075
+                },
+                "rotation": {
+                    "x": -0.5045540514059702,
+                    "y": 0.5637286930773197,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "type": "Camera"
+        },
+        {
+            "attributes": {
+                "BJS_LIGHT_SPECULAR": {
+                    "x": 0.0,
+                    "y": 0.5,
+                    "z": 0.0
+                },
+                "LIGHT_BRIGHTNESS": 0.5,
+                "LIGHT_COLOR": {
+                    "x": 0.0,
+                    "y": 1.0,
+                    "z": 0.10000000000000009
+                },
+                "LIGHT_TYPE": "Point"
+            },
+            "children": [],
+            "name": "Light",
+            "subType": "none",
+            "transforms": {
+                "position": {
+                    "x": 0.0,
+                    "y": 149.7427078784059,
+                    "z": 371.8459729911842
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "type": "Light"
+        },
+        {
+            "attributes": {
+                "BJS_LIGHT_SPECULAR": {
+                    "x": 0.5,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "LIGHT_BRIGHTNESS": 0.5,
+                "LIGHT_COLOR": {
+                    "x": 1.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "LIGHT_TYPE": "Point"
+            },
+            "children": [],
+            "name": "Light2",
+            "subType": "none",
+            "transforms": {
+                "position": {
+                    "x": -480.701616163248,
+                    "y": 149.7427078784059,
+                    "z": -7.70921250947012
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "type": "Light"
+        },
+        {
+            "attributes": {
+                "BJS_LIGHT_SPECULAR": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.5
+                },
+                "LIGHT_BRIGHTNESS": 0.5,
+                "LIGHT_COLOR": {
+                    "x": 0.0,
+                    "y": 0.16666666666666696,
+                    "z": 1.0
+                },
+                "LIGHT_TYPE": "Point"
+            },
+            "children": [],
+            "name": "Light3",
+            "subType": "none",
+            "transforms": {
+                "position": {
+                    "x": 386.22431305064106,
+                    "y": 149.7427078784059,
+                    "z": -670.0441616843922
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "type": "Light"
+        },
+        {
+            "attributes": {
+                "PRIM_AXIS": {
+                    "x": 0,
+                    "y": 1,
+                    "z": 0
+                },
+                "PRIM_PLANE_HEIGHT": 4000.0,
+                "PRIM_PLANE_SUBH": 12,
+                "PRIM_PLANE_SUBW": 12,
+                "PRIM_PLANE_WIDTH": 4000.0
+            },
+            "children": [],
+            "name": "Plane",
+            "subType": "Ground",
+            "transforms": {
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "type": "Primitive"
+        },
+        {
+            "attributes": {
+                "PRIM_CUBE_DOFILLET": 0,
+                "PRIM_CUBE_FRAD": 40.0,
+                "PRIM_CUBE_LEN": {
+                    "x": 98.60360901391641,
+                    "y": 37.26318747086191,
+                    "z": 1659.6575084607578
+                },
+                "PRIM_CUBE_SEP": 0,
+                "PRIM_CUBE_SUBF": 5,
+                "PRIM_CUBE_SUBX": 1,
+                "PRIM_CUBE_SUBY": 1,
+                "PRIM_CUBE_SUBZ": 1
+            },
+            "children": [],
+            "name": "Cube",
+            "subType": "Cube",
+            "transforms": {
+                "position": {
+                    "x": 166.84810364408756,
+                    "y": 158.7633565606043,
+                    "z": 607.1280693880741
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "type": "Primitive"
+        },
+        {
+            "attributes": {
+                "PRIM_CUBE_DOFILLET": 0,
+                "PRIM_CUBE_FRAD": 40.0,
+                "PRIM_CUBE_LEN": {
+                    "x": 259.9824679243259,
+                    "y": 176.71055346112422,
+                    "z": 1659.6575084607578
+                },
+                "PRIM_CUBE_SEP": 0,
+                "PRIM_CUBE_SUBF": 5,
+                "PRIM_CUBE_SUBX": 1,
+                "PRIM_CUBE_SUBY": 1,
+                "PRIM_CUBE_SUBZ": 1
+            },
+            "children": [],
+            "name": "Cube.1",
+            "subType": "Cube",
+            "transforms": {
+                "position": {
+                    "x": -756.330045071969,
+                    "y": 158.7633565606043,
+                    "z": 607.1280693880741
+                },
+                "rotation": {
+                    "x": -0.7603204219416818,
+                    "y": -0.8176073701443693,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "type": "Primitive"
+        },
+        {
+            "attributes": {
+                "PRIM_AXIS": {
+                    "x": 0,
+                    "y": 1,
+                    "z": 0
+                },
+                "PRIM_REGULAR": 0,
+                "PRIM_REGULARWIDTH": 10.0,
+                "PRIM_SLICE": 0,
+                "PRIM_SLICEFROM": 0.0,
+                "PRIM_SLICETO": 3.141592653589793,
+                "PRIM_TORUS_CSUB": 18,
+                "PRIM_TORUS_INNERRAD": 50.0,
+                "PRIM_TORUS_OUTERRAD": 200.0,
+                "PRIM_TORUS_SEG": 36
+            },
+            "children": [],
+            "name": "Torus",
+            "subType": "Torus",
+            "transforms": {
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "type": "Primitive"
+        },
+        {
+            "attributes": {
+                "PRIM_SPHERE_PERFECT": 1,
+                "PRIM_SPHERE_RAD": 100.0,
+                "PRIM_SPHERE_SUB": 24,
+                "PRIM_SPHERE_TYPE": 0
+            },
+            "children": [],
+            "name": "Sphere",
+            "subType": "Sphere",
+            "transforms": {
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "type": "Primitive"
+        },
+        {
+            "attributes": {
+                "PRIM_AXIS": {
+                    "x": 0,
+                    "y": 1,
+                    "z": 0
+                },
+                "PRIM_REGULAR": 0,
+                "PRIM_REGULARWIDTH": 3.0099999999999962,
+                "PRIM_SLICE": 0,
+                "PRIM_SLICEFROM": 0.0,
+                "PRIM_SLICETO": 3.141592653589793,
+                "PRIM_TORUS_CSUB": 18,
+                "PRIM_TORUS_INNERRAD": 15.04999999999998,
+                "PRIM_TORUS_OUTERRAD": 60.19999999999992,
+                "PRIM_TORUS_SEG": 36
+            },
+            "children": [],
+            "name": "Torus.1",
+            "subType": "Torus",
+            "transforms": {
+                "position": {
+                    "x": -622.2610216101414,
+                    "y": 220.43140986776044,
+                    "z": -291.664629052228
+                },
+                "rotation": {
+                    "x": 1.3019562921535233,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "type": "Primitive"
+        },
+        {
+            "attributes": {
+                "PRIM_SPHERE_PERFECT": 1,
+                "PRIM_SPHERE_RAD": 30.09999999999996,
+                "PRIM_SPHERE_SUB": 24,
+                "PRIM_SPHERE_TYPE": 0
+            },
+            "children": [],
+            "name": "Sphere.1",
+            "subType": "Sphere",
+            "transforms": {
+                "position": {
+                    "x": -622.2610216101414,
+                    "y": 220.43140986776044,
+                    "z": -291.664629052228
+                },
+                "rotation": {
+                    "x": 1.3019562921535233,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "type": "Primitive"
+        }
+    ]
+}

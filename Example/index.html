@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
+    <title>Level Editor</title>
+    <link rel="stylesheet" type="text/css" href="../menu.css">
+    <style>
+        html, body {
+            overflow: hidden;
+            width   : 100%;
+            height  : 100%;
+            margin  : 0;
+            padding : 0;
+        }
+
+        #renderCanvas {
+            width   : 100%;
+            height  : 100%;
+            touch-action: none;
+        } 
+    </style>
+
+    <script src="https://preview.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+
+</head>
+
+<body>
+    <canvas id="renderCanvas"></canvas>
+<script>
+
+
+class KeeyahLoader{
+    constructor(template, scene){
+        this.scene = scene
+        this.gScale = 1
+        template.nodes.forEach((node)=>{
+            this.parseNode(node)
+        })
+    }
+    
+    parseVec3(v){
+        return new BABYLON.Vector3(v.x, v.y, v.z)
+    }
+    parsePosition(v){
+        return new BABYLON.Vector3(v.x, v.y, v.z)
+    }       
+    parseColor3(v){
+        return new BABYLON.Color3(v.x,v.y,v.z)
+    }
+    
+    applyParent(p,n){
+            n.parent = p
+    }
+    
+    parseNode(node, parent = false){
+        let newNode
+        switch(node.type){
+            case 'Camera' :
+                newNode = new BABYLON.FreeCamera(node.name, this.parsePosition(node.transforms.position), this.scene)                
+                newNode.setTarget(this.parsePosition(node.attributes["CAMERA_TARGET"]))                
+                newNode.speed = node.attributes["BJS_CAMERA_SPEED"]
+                newNode.angularSensibility = node.attributes["BJS_CAMERA_ANGULAR_SENSIBILITY"]
+                newNode.minZ = node.attributes["BJS_CAMERA_Z_CLIP"].x
+                newNode.maxZ = node.attributes["BJS_CAMERA_Z_CLIP"].y
+                
+                if(node.attributes["BJS_CAMERA_MAKE_DEFAULT"]){
+                    /*@TODO*/
+                }
+                
+                if(node.attributes["BJS_CAMERA_ATTACH_CONTROLS"]){
+                    newNode.attachControl(this.scene.getEngine().getRenderingCanvas(), false)
+                }
+                
+            break;
+            
+            case 'Light' :
+                switch(node.attributes["LIGHT_TYPE"]){
+                    case 'Point':
+                        newNode = new BABYLON.PointLight(node.name, this.parsePosition(node.transforms.position), this.scene)                        
+                    break;
+                    //case 'Spot':
+                    
+                    //break;
+                    //case 'Directional'
+                    
+                    //break;
+                }
+                
+                newNode.intensity = node.attributes["LIGHT_BRIGHTNESS"]
+                newNode.diffuse = this.parseColor3(node.attributes["LIGHT_COLOR"])
+                newNode.specular = this.parseColor3(node.attributes["BJS_LIGHT_SPECULAR"] || {x:1,y:1,z:1})                
+            break; 
+            
+            case 'Primitive':
+                switch(node.subType){
+                    case 'Cube':
+                    
+                        newNode = BABYLON.MeshBuilder.CreateBox(node.name, 
+                            {
+                                width:node.attributes['PRIM_CUBE_LEN'].x,
+                                height: node.attributes['PRIM_CUBE_LEN'].y,
+                                depth:node.attributes['PRIM_CUBE_LEN'].z
+                            }, this.scene)
+                            
+                    break;
+                    case 'Ground':
+                    
+                        newNode = BABYLON.MeshBuilder.CreateGround(node.name,
+                        {   
+                            width: node.attributes['PRIM_PLANE_WIDTH'],
+                            height: node.attributes['PRIM_PLANE_HEIGHT'],
+                            subdivisionsX: node.attributes['PRIM_PLANE_SUBW'],
+                            subdivisionsY: node.attributes['PRIM_PLANE_SUBH']
+                        }, this.scene)
+                        
+                    break;
+                    case 'Sphere':
+                    
+                        newNode = BABYLON.MeshBuilder.CreateSphere(node.name, 
+                        {
+                            diameter: node.attributes['PRIM_SPHERE_RAD']*2,
+                            segments: node.attributes['PRIM_SPHERE_SUB']
+                        }, this.scene);
+                        
+                    break;
+                    
+                    case 'Torus':
+                    
+                        newNode = BABYLON.MeshBuilder.CreateTorus(name, 
+                        {
+                            diameter: node.attributes['PRIM_TORUS_OUTERRAD']*2,
+                            thickness: node.attributes['PRIM_TORUS_INNERRAD']*2,
+                            tessellation:  node.attributes['PRIM_TORUS_SEG']
+                        }, this.scene);
+                        
+                    break;
+                } 
+                
+                if(parent){
+                    this.applyParent(parent, newNode)
+                }
+                
+                newNode.position = this.parsePosition(node.transforms.position)
+                newNode.rotation = this.parseVec3(node.transforms.rotation)
+                newNode.scale = this.parseVec3(node.transforms.scale)
+                 
+            break;
+        }
+    
+        node.children.forEach((c)=>{
+            this.parseNode(c, newNode)
+        })
+        
+        
+        /*VAR EXPOSE*/        
+        if(node.attributes["BJS_EXPOSE_VARIABLE"]){
+            let eS = ''
+            if(node.attributes["BJS_EXPOSE_GLOBAL"]){
+                eS = node.attributes["BJS_VARIABLE_NAME"]+" = newNode";
+            }else{
+                eS = "this.scene['"+node.attributes["BJS_VARIABLE_NAME"]+"'] = newNode";
+            }            
+            eval(eS)
+        }
+    }
+}
+
+//BJS CONSTANTS
+//BABYLON.OBJFileLoader.OPTIMIZE_WITH_UV = true
+	
+window.addEventListener('DOMContentLoaded', ()=>{
+    let canvas = document.getElementById('renderCanvas')
+    let engine = new BABYLON.Engine(canvas, true)
+    
+    let getTemplate = new XMLHttpRequest();
+    
+    getTemplate.onreadystatechange = ()=>{
+    if (getTemplate.readyState == 4 && getTemplate.status == 200) {
+        let template = JSON.parse(getTemplate.responseText)
+            done( template )
+        }        
+    }
+    
+    let createScene = ( template )=>{        
+        let scene = new BABYLON.Scene(engine)
+        let loadTemplate = new KeeyahLoader( template, scene)
+        
+        //scene.debugLayer.show(true)
+
+        return scene
+    } 
+
+    let done = ( template ) => {       
+        scene = createScene(template)        
+
+        engine.runRenderLoop(()=>{
+            scene.render()
+        })
+
+        window.addEventListener('resize', ()=>{
+            engine.resize()
+        })
+    }
+    
+    getTemplate.open("GET", 'template_test.json', true);
+    getTemplate.send()
+    
+})
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+STRINGTABLE BJS_Camera_Tag
+{
+    BJS_Camera_Tag "BABYLON JS Camera Tag";
+    
+    BJS_CAMERA_MAKE_DEFAULT "Make Default";
+    BJS_CAMERA_ATTACH_CONTROLS "Attach Controls";
+    BJS_CAMERA_SPEED "Camera Speed";
+    BJS_CAMERA_ANGULAR_SENSIBILITY "Angular Sensibility";
+    BJS_CAMERA_Z_CLIP "z-Clipping";
+}
