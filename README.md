@@ -3,9 +3,9 @@ Ok I am pivoting and changing this whole thing to be the .babylon filestructure 
 Later I will try to extend the .babylon file type to be more robust and include some of the ideas from my KEEYAH exporter.
 ### Working ON ---
 - Scene_Control
--- Scene Class (Done)
--- Camera Class
--- Light Class
+- Scene Class (Done)
+- Camera Class
+- Light Class
 
 
 
@@ -35,4 +35,4 @@ Getting the basic export capabilities enabled to use C4D as a editor for BJS.
 - Physics
 
 > Contact Pryme8@gmail.com with questions.
-> Written with [StackEdit](https://stackedit.io/).
+
