@@ -4,8 +4,8 @@ Later I will try to extend the .babylon file type to be more robust and include 
 ### Working ON ---
 - Scene_Control
 - Scene Class (Done)
-- Camera Class
-- Light Class
+- Camera Class (Done)
+- Light Class 
 
 
 
