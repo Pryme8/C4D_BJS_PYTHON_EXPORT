@@ -28,12 +28,18 @@
 <body>
     <canvas id="renderCanvas"></canvas>
 <script>
-
-
 class KeeyahLoader{
     constructor(template, scene){
-        this.scene = scene
-        this.gScale = 1
+        this.scene = scene        
+        
+        if(template.attributes["BJS_SCENE_CLEARCOLOR"]){
+            scene.clearColor = this.parseColor3a(template.attributes["BJS_SCENE_CLEARCOLOR"], template.attributes["BJS_SCENE_CLEARALPHA"] || 1)
+        }
+        
+        if(template.attributes["BJS_SCENE_AMBIENTCOLOR"]){
+            scene.ambientColor = this.parseColor3(template.attributes["BJS_SCENE_AMBIENTCOLOR"])
+        }
+        
         template.nodes.forEach((node)=>{
             this.parseNode(node)
         })
@@ -42,11 +48,21 @@ class KeeyahLoader{
     parseVec3(v){
         return new BABYLON.Vector3(v.x, v.y, v.z)
     }
+    
     parsePosition(v){
         return new BABYLON.Vector3(v.x, v.y, v.z)
-    }       
+    }
+    
+    parseRotation(v){
+         return BABYLON.Quaternion.RotationAxis(new BABYLON.Vector3(v.x, v.y, v.z), v.a);
+    }
+    
     parseColor3(v){
         return new BABYLON.Color3(v.x,v.y,v.z)
+    }
+    
+    parseColor3a(v, a){
+        return new BABYLON.Color4(v.x,v.y,v.z,a)
     }
     
     applyParent(p,n){
@@ -58,9 +74,11 @@ class KeeyahLoader{
         switch(node.type){
             case 'Camera' :
                 newNode = new BABYLON.FreeCamera(node.name, this.parsePosition(node.transforms.position), this.scene)                
-                newNode.setTarget(this.parsePosition(node.attributes["CAMERA_TARGET"]))                
-                newNode.speed = node.attributes["BJS_CAMERA_SPEED"]
-                newNode.angularSensibility = node.attributes["BJS_CAMERA_ANGULAR_SENSIBILITY"]
+                newNode.setTarget(this.parsePosition(node.attributes["CAMERA_TARGET"]) || BABYLON.Vector3.Zero())              
+                newNode.speed = node.attributes["BJS_CAMERA_SPEED"] || 110
+                newNode.angularSensibility = node.attributes["BJS_CAMERA_ANGULAR_SENSIBILITY"] || 2000
+                
+                node.attributes["BJS_CAMERA_Z_CLIP"] = node.attributes["BJS_CAMERA_Z_CLIP"] || {x:0.1, y:5000}
                 newNode.minZ = node.attributes["BJS_CAMERA_Z_CLIP"].x
                 newNode.maxZ = node.attributes["BJS_CAMERA_Z_CLIP"].y
                 
@@ -87,15 +105,15 @@ class KeeyahLoader{
                     //break;
                 }
                 
-                newNode.intensity = node.attributes["LIGHT_BRIGHTNESS"]
-                newNode.diffuse = this.parseColor3(node.attributes["LIGHT_COLOR"])
+                newNode.intensity = node.attributes["LIGHT_BRIGHTNESS"] || 1
+                newNode.diffuse = this.parseColor3(node.attributes["LIGHT_COLOR"] || {x:1,y:1,z:1})
                 newNode.specular = this.parseColor3(node.attributes["BJS_LIGHT_SPECULAR"] || {x:1,y:1,z:1})                
             break; 
             
             case 'Primitive':
                 switch(node.subType){
                     case 'Cube':
-                    
+                        node.attributes['PRIM_CUBE_LEN'] = node.attributes['PRIM_CUBE_LEN'] || {x:1,y:1,z:1}
                         newNode = BABYLON.MeshBuilder.CreateBox(node.name, 
                             {
                                 width:node.attributes['PRIM_CUBE_LEN'].x,
@@ -108,10 +126,10 @@ class KeeyahLoader{
                     
                         newNode = BABYLON.MeshBuilder.CreateGround(node.name,
                         {   
-                            width: node.attributes['PRIM_PLANE_WIDTH'],
-                            height: node.attributes['PRIM_PLANE_HEIGHT'],
-                            subdivisionsX: node.attributes['PRIM_PLANE_SUBW'],
-                            subdivisionsY: node.attributes['PRIM_PLANE_SUBH']
+                            width: node.attributes['PRIM_PLANE_WIDTH'] || 1,
+                            height: node.attributes['PRIM_PLANE_HEIGHT'] || 1,
+                            subdivisionsX: node.attributes['PRIM_PLANE_SUBW'] || 1,
+                            subdivisionsY: node.attributes['PRIM_PLANE_SUBH'] || 1
                         }, this.scene)
                         
                     break;
@@ -119,38 +137,66 @@ class KeeyahLoader{
                     
                         newNode = BABYLON.MeshBuilder.CreateSphere(node.name, 
                         {
-                            diameter: node.attributes['PRIM_SPHERE_RAD']*2,
-                            segments: node.attributes['PRIM_SPHERE_SUB']
-                        }, this.scene);
+                            diameter: node.attributes['PRIM_SPHERE_RAD']*2 || 1,
+                            segments: node.attributes['PRIM_SPHERE_SUB'] || 16
+                        }, this.scene)
                         
                     break;
                     
                     case 'Torus':
                     
-                        newNode = BABYLON.MeshBuilder.CreateTorus(name, 
+                        newNode = BABYLON.MeshBuilder.CreateTorus(node.name, 
                         {
-                            diameter: node.attributes['PRIM_TORUS_OUTERRAD']*2,
-                            thickness: node.attributes['PRIM_TORUS_INNERRAD']*2,
-                            tessellation:  node.attributes['PRIM_TORUS_SEG']
-                        }, this.scene);
+                            diameter: node.attributes['PRIM_TORUS_OUTERRAD']*2 || 1,
+                            thickness: node.attributes['PRIM_TORUS_INNERRAD']*2 || 0.25,
+                            tessellation:  node.attributes['PRIM_TORUS_SEG'] || 16
+                        }, this.scene)
                         
                     break;
-                } 
+                }              
+               
+                newNode.position = this.parsePosition(node.transforms.position)
+                newNode.rotationQuaternion = this.parseRotation(node.transforms.rotation)
+                newNode.scale = this.parseVec3(node.transforms.scale)
+            break;            
+            case "Polygon":  
                 
-                if(parent){
-                    this.applyParent(parent, newNode)
-                }
+                newNode = new BABYLON.Mesh(node.name,  this.scene);
+                
+                let vertexData = new BABYLON.VertexData()
+                vertexData.positions = node.attributes['Buffers']['positions']
+                vertexData.indices = node.attributes['Buffers']['indices']
+                vertexData.uv = node.attributes['Buffers']['uv'] || []
+                
+                vertexData.applyToMesh(newNode)
                 
                 newNode.position = this.parsePosition(node.transforms.position)
-                newNode.rotation = this.parseVec3(node.transforms.rotation)
+                newNode.rotationQuaternion = this.parseRotation(node.transforms.rotation)
                 newNode.scale = this.parseVec3(node.transforms.scale)
-                 
+                
             break;
+        }
+        
+        if( node.attributes['material'] ){
+            switch(node.attributes['material']['type']){
+                case 'StandardMaterial':
+                    newNode.material = new BABYLON.StandardMaterial(node.attributes['material']['BJS_MATERIAL_NAME'], this.scene)
+                    console.log(this.parseColor3(node.attributes['material']['BJS_MATERIAL_COLOR_DIFFUSE']))
+                    newNode.material.diffuseColor = this.parseColor3(node.attributes['material']['BJS_MATERIAL_COLOR_DIFFUSE'])
+                    newNode.material.ambientColor = this.parseColor3(node.attributes['material']['BJS_MATERIAL_COLOR_AMBIENT'])
+                    newNode.material.emissiveColor = this.parseColor3(node.attributes['material']['BJS_MATERIAL_COLOR_EMISSIVE'])
+                    newNode.material.specularColor = this.parseColor3(node.attributes['material']['BJS_MATERIAL_COLOR_SPECULAR'] )                   
+                break;
+            } 
         }
     
         node.children.forEach((c)=>{
             this.parseNode(c, newNode)
         })
+        
+        if(parent){
+            this.applyParent(parent, newNode)
+        }
         
         
         /*VAR EXPOSE*/        
@@ -165,6 +211,8 @@ class KeeyahLoader{
         }
     }
 }
+
+
 
 //BJS CONSTANTS
 //BABYLON.OBJFileLoader.OPTIMIZE_WITH_UV = true

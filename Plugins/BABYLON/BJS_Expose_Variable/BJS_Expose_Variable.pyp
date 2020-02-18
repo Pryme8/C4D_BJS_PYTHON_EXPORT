@@ -33,7 +33,7 @@ class BJS_Expose_Variable(plugins.TagData):
 if __name__ == "__main__":
     bmp = bitmaps.BaseBitmap()
     dir, file = os.path.split(__file__)
-    bitmapfile = os.path.join(dir, "res", "Icon.tif")
+    bitmapfile = os.path.join(dir, "res", "icon.png")
     
     result = bmp.InitWith(bitmapfile)
     

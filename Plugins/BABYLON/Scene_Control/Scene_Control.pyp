@@ -3,6 +3,7 @@ import os
 import sys
 import json
 import math
+import re
 
 from c4d import gui, documents, utils, storage, plugins, bitmaps, Vector
 from math import pi
@@ -13,7 +14,7 @@ __plugin_title__ = "BABYLON Scene Control"
 __author__ = "Pryme8"
 
 #=================================
-#SCENE CONTROL DECLATRIOS
+#SCENE CONTROL DECLATRIONS
 #=================================
 BJS_SCENE_CLEARCOLOR = 1000
 BJS_SCENE_CLEARALPHA = 1001
@@ -33,6 +34,7 @@ class ComplexEncoder(json.JSONEncoder):
         else:
             return json.JSONEncoder.default(self, obj)
 #---------------------------------
+
 #=================================
 #quick converters
 #=================================
@@ -47,10 +49,11 @@ def Vec2(v):
     return {'x':v[0],'y':v[1]}
 
 def Vec3(v):
-    return {'x':v[0],'y':v[1],'z':v[2]}
+    return {'x':v[0], 'y':v[1], 'z':v[2]}
 
-def Vec3Rot(v):
-    return {'x':v[1],'y':v[0],'z':v[2]}
+def rotationAxis(op):
+    mat = utils.MatrixToRotAxis(op.GetMg())    
+    return {'x':mat[0][0], 'y':mat[0][1], 'z':mat[0][2], 'a': mat[1]}
 
 def sVec3(v):
     return {'x':scale(v[0]),'y':scale(v[1]),'z':scale(v[2])}
@@ -72,8 +75,7 @@ class Transforms:
         self.scale = None
         
     def reprJSON(self):
-        return dict(position=self.position, rotation=self.rotation, scale=self.scale)
-    
+        return dict(position=self.position, rotation=self.rotation, scale=self.scale)    
 #--------------------------------- 
 
 #=================================
@@ -105,13 +107,13 @@ class Node:
             else:
                 self.subType = type         
         else:    
-            self.type = type
-            
+            self.type = type            
+                    
         self.name = op.GetName()
         
-        #setTransforms
+        #setTransforms          
         self.transforms.position = Vec3(op.GetAbsPos())  
-        self.transforms.rotation = Vec3Rot(op.GetAbsRot())
+        self.transforms.rotation = rotationAxis(op)
         self.transforms.scale = Vec3(op.GetAbsScale())
        
         description = op.GetDescription(c4d.DESCFLAGS_DESC_0)
@@ -173,10 +175,75 @@ class Node:
                                 self.attributes[bc[c4d.DESC_IDENT]] = Orientation(_d)
                             else:  
                                 self.attributes[bc[c4d.DESC_IDENT]] = _d
+        #-----------------
+        
+        #POLYGONS
+        if self.type == "Polygon":
+            #Prep
+            _op = op.GetClone()            
+            io = _op.GetAllPolygons()
+            po = _op.GetAllPoints()
+            
+            positions = []
+            indices = []
+            uv = []
+      
+            for i in io:
+                indices.extend([i.a, i.d, i.c, i.a, i.c, i.b])           
+            
+            for p in po:
+                positions.extend([p.x, p.y, p.z])
+            
+            
+            self.attributes["Buffers"] = {
+                "positions" : positions,
+                "indices"   : indices,
+            }
+            
+            uvwtag = op.GetTag(c4d.Tuvw)
+            if uvwtag is not None:            
+                nbr = utils.Neighbor()
+                nbr.Init(op)
+                pnt_ids = [id for id, val in enumerate(po)]
+                for pid in pnt_ids:
+                    polys = nbr.GetPointPolys(pid)
+                    if polys is not None:
+                        cpoly = op.GetPolygon(polys[0])
+                        uvwdict = uvwtag.GetSlow(polys[0])
+                        if pid == cpoly.a:
+                            uv.extend([uvwdict['a'].x, uvwdict['a'].y])
+                        elif pid == cpoly.b:
+                            uv.extend([uvwdict['b'].x, uvwdict['b'].y])
+                        elif pid == cpoly.c:
+                            uv.extend([uvwdict['c'].x, uvwdict['c'].y])
+                        elif pid == cpoly.d:
+                            uv.extend([uvwdict['d'].x, uvwdict['d'].y])
+                    
+                self.attributes["Buffers"]["uv"] = uv
+            
         #----------------- 
         
-        #CHECK FOR GLOBAL TAGS
-        for tag in tags:
+        
+        for tag in tags:            
+            if tag.GetTypeName() == "BJS_Standard_Material":
+                self.attributes['material'] = {
+                    "type" : "StandardMaterial"
+                }
+                td = tag.GetDescription(c4d.DESCFLAGS_DESC_0)
+                for bc, paramid, groupid in td:                    
+                    if (
+                        bc[c4d.DESC_IDENT] == "BJS_MATERIAL_NAME"
+                    ):
+                        self.attributes['material'][bc[c4d.DESC_IDENT]] = tag[paramid[0].id]
+                    elif (
+                        bc[c4d.DESC_IDENT] == "BJS_MATERIAL_COLOR_AMBIENT" or
+                        bc[c4d.DESC_IDENT] == "BJS_MATERIAL_COLOR_DIFFUSE" or
+                        bc[c4d.DESC_IDENT] == "BJS_MATERIAL_COLOR_EMISSIVE" or
+                        bc[c4d.DESC_IDENT] == "BJS_MATERIAL_COLOR_SPECULAR"
+                    ):
+                        self.attributes['material'][bc[c4d.DESC_IDENT]] = Vec3(tag[paramid[0].id])
+                    
+            #CHECK FOR GLOBAL TAGS DESCRIPTIONS
             td = tag.GetDescription(c4d.DESCFLAGS_DESC_0)
             for bc, paramid, groupid in td:                    
                 if (
@@ -185,6 +252,7 @@ class Node:
                     bc[c4d.DESC_IDENT] == "BJS_VARIABLE_NAME"
                 ):
                     self.attributes[bc[c4d.DESC_IDENT]] = tag[paramid[0].id]
+           
         #----------------- 
     
     def reprJSON(self):
@@ -242,8 +310,7 @@ class parsedScene:
         return dict( 
             nodes=self.nodes,
             attributes=self.attributes
-            )
-    
+            )    
 #---------------------------------
 
 #=================================
@@ -254,6 +321,30 @@ def startParse(op):
     data = recurse_hierarchy(op.GetDown(), data, False)    
     return data
 #---------------------------------
+
+def cleanArrays(data):   
+    
+    regex = r"""
+	(?:(?:\"indices\"\:\s)|(?:\"positions\"\:\s)|(?:\"uv\"\:\s))+(?:\[(?:[^]]+)\])
+	"""    
+    
+    matches = re.finditer(regex, data, re.MULTILINE | re.VERBOSE)
+    
+    diff = 0
+    
+    for i, m in enumerate(matches, start=0):
+        s = m.start(0) - diff
+        e = m.end(0) - diff        
+        clean = m.group(0).replace(' ', '').replace('\n', '').replace('\r', '')
+        
+        diff = diff + (len(m.group(0)) - len(clean))       
+        
+        a = data[0:s]
+        b = data[e:len(data)]
+        
+        data = a+clean+b
+
+    return data
 
 #=================================
 #SCENE CONTROL CLASS
@@ -286,7 +377,8 @@ class Scene_Control(plugins.ObjectData):
 
     def Export(self, node):        
             data = json.dumps((startParse(node)).reprJSON(), sort_keys=True, indent=4, separators=(',', ': '), cls=ComplexEncoder)
-            #print data
+            data = cleanArrays(data)          
+            
             filePath = storage.LoadDialog(title="Save as Keeyah Template", flags=c4d.FILESELECT_SAVE, force_suffix="json")
             if filePath is None:
                 return
@@ -296,11 +388,15 @@ class Scene_Control(plugins.ObjectData):
             f.close()        
             c4d.CopyStringToClipboard("KEEEYAH!")
             gui.MessageDialog(".json file exported")
+#---------------------------------
 
+#=================================
+# __main__
+#=================================
 if __name__ == "__main__":
     bmp = bitmaps.BaseBitmap()
     dir, file = os.path.split(__file__)
-    bitmapfile = os.path.join(dir, "res", "Icon.tif")
+    bitmapfile = os.path.join(dir, "res", "icon.png")
     
     result = bmp.InitWith(bitmapfile)
     
